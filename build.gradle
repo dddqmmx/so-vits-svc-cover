@@ -1,0 +1,22 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
+
+    id 'net.mamoe.mirai-console' version '2.15.0'
+}
+
+group = 'com.dddqmmx'
+version = '0.1.0'
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation "top.yumbo.music:yumbo-music-utils:1.2.3"
+}
+
+mirai {
+    jvmTarget JavaVersion.VERSION_1_8
+}
