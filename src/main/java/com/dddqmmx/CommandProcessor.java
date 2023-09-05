@@ -28,37 +28,57 @@ public class CommandProcessor {
         PropertiesUtil.load();
         MusicEnum.setBASE_URL_163Music(PropertiesUtil.properties.getProperty("baseUrl163Music"));
     }
+    static void processSpkListCommand(GroupMessageEvent event, String message) {
+        String regUserId = "speakerList";
+        if (message.equals(regUserId)){
+            MessageChainBuilder messageChain = new MessageChainBuilder().append("可选说话人:\n");
+            for (int i = 0; i < PropertiesUtil.spkList.size(); i++){
+                messageChain.append(PropertiesUtil.spkList.getJSONObject(i).getString("name"));
+                if (!(i == PropertiesUtil.spkList.size()-1)){
+                    messageChain.append(",");
+                }
+            }
+            event.getSubject().sendMessage(messageChain.build());
+        }
+    }
     static void processCoverCommand(GroupMessageEvent event, String message) {
-        String regUserId = "cover (.*)";
+        String regUserId = "cover (\\d+) s (.*) t (\\d+)";
         Matcher matcher = Pattern.compile(regUserId).matcher(message);
         if (matcher.find()) {
             if (!isLocked){
                 new Thread(()->{
                     try {
                         isLocked = true;
-                        int songId = Integer.parseInt(matcher.group(1))-1;
-                        JSONObject songInfo = userSongs.get(event.getSender().getId()).getJSONObject(songId);
-                        String maxBrLevel = songInfo.getJSONObject("privilege").getString("maxBrLevel");
-                        System.out.println(maxBrLevel);
-                        JSONObject songUrlParameter = new JSONObject();
-                        songUrlParameter.put("id",songInfo.get("id"));
-                        songUrlParameter.put("level",maxBrLevel);
-                        setNeteaseCloudMusicCookie();
-                        String songUrl = musicInfo.songUrl(songUrlParameter).getJSONArray("data").getJSONObject(0).getString("url");
-                        String fileName = null;
-                        try {
-                            fileName = FileUtil.downloadFile(songUrl, PropertiesUtil.properties.getProperty("uvr5Path")+"/audio");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        for (int i = 0; i < PropertiesUtil.spkList.size(); i++){
+                            if(matcher.group(2).equals(PropertiesUtil.spkList.getJSONObject(i).getString("name"))){
+                                event.getSubject().sendMessage(new MessageChainBuilder()
+                                        .append("开始推理,稍等")
+                                        .build());
+                                int songId = Integer.parseInt(matcher.group(1))-1;
+                                JSONObject songInfo = userSongs.get(event.getSender().getId()).getJSONObject(songId);
+                                String maxBrLevel = songInfo.getJSONObject("privilege").getString("maxBrLevel");
+                                System.out.println(maxBrLevel);
+                                JSONObject songUrlParameter = new JSONObject();
+                                songUrlParameter.put("id",songInfo.get("id"));
+                                songUrlParameter.put("level",maxBrLevel);
+                                setNeteaseCloudMusicCookie();
+                                String songUrl = musicInfo.songUrl(songUrlParameter).getJSONArray("data").getJSONObject(0).getString("url");
+                                String fileName = null;
+                                try {
+                                    fileName = FileUtil.downloadFile(songUrl, PropertiesUtil.properties.getProperty("uvr5Path")+"/audio");
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                File instrumentFile = vocalAndBackgroundMusicSeparation(fileName);
+                                File workingDirectory = new File(PropertiesUtil.properties.getProperty("soVitsSvc"));
+                                PythonScript pythonScript = new PythonScript(
+                                        workingDirectory,
+                                        PropertiesUtil.properties.getProperty("pythonPath"),
+                                        "inference_main.py"+ PropertiesUtil.spkList.getJSONObject(i).getString("parameter") +" -n \"test.wav\" -t " + matcher.group(3) + " --wav_format \"wav\"");
+                                String directoryPath = PropertiesUtil.properties.getProperty("soVitsSvc")+"/results";
+                                processResults(event, instrumentFile, directoryPath);
+                            }
                         }
-                        File instrumentFile = vocalAndBackgroundMusicSeparation(fileName);
-                        File workingDirectory = new File(PropertiesUtil.properties.getProperty("soVitsSvc"));
-                        PythonScript pythonScript = new PythonScript(
-                                workingDirectory,
-                                PropertiesUtil.properties.getProperty("pythonPath"),
-                                "inference_main.py -m \"D:/AI/Client/weights/so-vits-svc-4.1/nanami/G.pth\" -c \"D:/AI/Client/weights/so-vits-svc-4.1/nanami/config.json\" -cm \"D:/AI/Client/weights/so-vits-svc-4.1/nanami/kmeans.pt\" -cr 0.5 -dm \"D:/AI/Client/weights/so-vits-svc-4.1/nanami/diffusion.pt\" -dc \"D:/AI/Client/weights/so-vits-svc-4.1/nanami/diffusionConfig.yaml\" -ks 100 -n \"test.wav\" -t 0 -s \"nanami\" --wav_format \"wav\"");
-                        String directoryPath = PropertiesUtil.properties.getProperty("soVitsSvc")+"/results";
-                        processResults(event, instrumentFile, directoryPath);
                     }finally {
                         isLocked = false;
                     }
@@ -155,7 +175,7 @@ public class CommandProcessor {
                 }
                 resultStringBuilder.append("\n");
             }
-            resultStringBuilder.append("AI翻唱使用:cover [序号]");
+            resultStringBuilder.append("AI翻唱使用:cover [序号] s [说话人] t [音高]\n想要获取说话人发送:speakerList");
             event.getSubject().sendMessage(new MessageChainBuilder()
                     .append(resultStringBuilder.toString())
                     .build());

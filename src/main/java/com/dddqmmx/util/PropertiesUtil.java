@@ -1,5 +1,6 @@
 package com.dddqmmx.util;
 
+import com.alibaba.fastjson.JSONArray;
 import com.dddqmmx.SoVitsSvcCover;
 
 import java.io.FileInputStream;
@@ -9,6 +10,7 @@ import java.util.Properties;
 
 public class PropertiesUtil {
     public static Properties properties = new Properties();
+    public static JSONArray spkList = new JSONArray();
     public static String configPath = SoVitsSvcCover.INSTANCE.getConfigFolderPath() +"/config.properties";
     public static void load(){
         try {
@@ -17,6 +19,7 @@ public class PropertiesUtil {
             properties.load(inputStream);
             // 关闭输入流
             inputStream.close();
+            spkList = JSONArray.parseArray(FileUtil.readJsonFile(SoVitsSvcCover.INSTANCE.getConfigFolderPath() + "/spk_list.json"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

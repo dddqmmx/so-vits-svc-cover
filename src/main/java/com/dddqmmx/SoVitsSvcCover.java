@@ -27,6 +27,7 @@ public final class SoVitsSvcCover extends JavaPlugin {
             String message = event.getMessage().contentToString();
             CommandProcessor.processCoverCommand(event, message);
             CommandProcessor.processSearchCommand(event, message);
+            CommandProcessor.processSpkListCommand(event, message);
         });
     }
 
