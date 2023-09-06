@@ -17,7 +17,7 @@ cover 音乐序号 s 说话人 t 音高
 ### 推荐环境
 
 - JDK 17
-- Anaconda conda 23.7.2
+- Anaconda 23.7.2
 
 ### 1.部署NeteaseCloudMusicApi
 [项目地址](https://github.com/Binaryify/NeteaseCloudMusicApi)
