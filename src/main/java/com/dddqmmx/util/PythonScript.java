@@ -42,26 +42,6 @@ public class PythonScript {
             // 等待进程执行完成
             int exitCode = process.waitFor();
             System.out.println("Python脚本执行完毕，退出码：" + exitCode);
-//            outputHandler = null;
-//            completionHandler = null;
-//
-//            Thread outputThread = new Thread(() -> {
-//                BufferedReader reader;
-//                try {
-//                    reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "GBK"));
-//                    String line;
-//                    while ((line = reader.readLine()) != null) {
-//                        if (outputHandler != null) {
-//                            outputHandler.onOutput(PythonScript.this, line);
-//                        }
-//                    }
-//                    reader.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            });
-//
-//            outputThread.start();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
