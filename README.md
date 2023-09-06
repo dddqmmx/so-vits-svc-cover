@@ -18,6 +18,7 @@ cover 音乐序号 s 说话人 t 音高
 
 - JDK 17
 - Anaconda 23.7.2
+- Mirai Console插件mirai-silk-converter
 
 ### 1.部署NeteaseCloudMusicApi
 [项目地址](https://github.com/Binaryify/NeteaseCloudMusicApi)
