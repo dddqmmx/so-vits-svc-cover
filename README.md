@@ -1,7 +1,17 @@
 # so-vits-svc-cover
 这是一个使用so-vits-svc进行ai翻唱的mirai插件
-## 使用
+## 使用示例
+```shell
+# 获取说话人列表
+speakerList
+# 搜索音乐
+search 音乐名称 page 页数
+# 翻唱
+cover 音乐序号 s 说话人 t 音高
+```
+![example.png](example.png)
 
+## 环境搭建
 由于该插件部署复杂到只能用悲剧形容,我建了一个QQ群供大家交流使用:762608337
 ![motobe_izou](motobe_izou.png)
 ### 推荐环境
